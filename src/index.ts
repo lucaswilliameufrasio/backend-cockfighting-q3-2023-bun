@@ -25,9 +25,9 @@ new Elysia()
   .post(
     '/pessoas',
     async (context) => {
-      const personNickname = peopleNicknamesCache.get(context.body.apelido)
+      const personAlreadyExists = peopleNicknamesCache.has(context.body.apelido)
 
-      if (personNickname) {
+      if (personAlreadyExists) {
         context.set.status = 422
         return { message: 'Internal Server Error' }
       }
