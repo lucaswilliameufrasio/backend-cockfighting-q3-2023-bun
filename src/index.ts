@@ -33,17 +33,17 @@ new Elysia()
       }
 
       const uuid = uuidv7()
-      const stacks = context.body.stack.join(',')
       await redis.set(uuid, JSON.stringify({
         id: uuid,
         apelido: context.body.apelido,
         nome: context.body.nome,
         nascimento: context.body.nascimento,
-        stack: stacks
+        stack: context.body.stack
       }))
-
+      
       await redis.expire(uuid, 9)
-
+      
+      const stacks = context.body.stack.join(',')
       const [result] = await sql`
         INSERT INTO people (id, nickname, name, birth_date, stack)
         VALUES (${uuid}, ${context.body.apelido}, ${context.body.nome}, ${
