@@ -8,8 +8,7 @@ const sql = postgres({
   database: process.env.DB_NAME,
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  keep_alive: 20_000,
-  idle_timeout: 240,
+  idle_timeout: 10,
   max: process.env.DB_MAX_CONNECTIONS
     ? Number(process.env.DB_MAX_CONNECTIONS)
     : 90,
