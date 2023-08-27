@@ -147,14 +147,14 @@ new Elysia()
   .get('/contagem-pessoas', async () => {
     const [result] = await sql`SELECT COUNT(*) AS count FROM people;`
 
-    if (!result.length) {
+    if (!result) {
       return {
         count: 0,
       }
     }
 
     return {
-      count: result.count,
+      count: Number(result.count),
     }
   })
   .onError(({ code, error, set }) => {
