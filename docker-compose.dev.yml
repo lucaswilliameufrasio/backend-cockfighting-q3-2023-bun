@@ -20,6 +20,22 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  dragonfly:
+    image: docker.dragonflydb.io/dragonflydb/dragonfly
+    hostname: dragonfly
+    container_name: backend-cockfighting-bun-cache
+    restart: unless-stopped
+    volumes:
+      - dragonfly_data:/data
+    ports:
+      - 6380:6379
+    networks:
+      - fight-pit
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
 
 networks:
   fight-pit:
@@ -27,3 +43,4 @@ networks:
 
 volumes:
   postgres_data:
+  dragonfly_data:

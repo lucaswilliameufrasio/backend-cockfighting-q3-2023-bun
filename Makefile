@@ -12,7 +12,7 @@ build-image:
 PHONY: build-image
 
 start-database:
-	$ docker compose -f docker-compose.dev.yml up -d postgres
+	$ docker compose -f docker-compose.dev.yml up -d postgres dragonfly
 PHONY: start-database
 
 stop-all-compose-services:
