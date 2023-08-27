@@ -14,6 +14,7 @@ services:
       - DB_PASSWORD=fight
       - DB_MAX_CONNECTIONS=75
     depends_on:
+      - dragonfly
       - db
     expose:
       - "80"
@@ -38,6 +39,7 @@ services:
       - DB_PASSWORD=fight
       - DB_MAX_CONNECTIONS=75
     depends_on:
+      - dragonfly
       - db
     expose:
       - "80"
@@ -106,19 +108,17 @@ services:
           cpus: '0.15'
           memory: '0.4GB'
     restart: unless-stopped
-    # ulimits:
-    #   memlock: -1
     volumes:
       - dragonfly_data:/data
     ports:
       - 6380:6379
     networks:
       - fight-pit
-    # healthcheck:
-    #   test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
-    #   interval: 1s
-    #   timeout: 3s
-    #   retries: 30
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
 
 networks:
   fight-pit:
