@@ -75,9 +75,9 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.05'
-          memory: '1.8GB'
-    restart: always
+          cpus: '0.9'
+          memory: '1.4GB'
+    restart: unless-stopped
     environment:
       - POSTGRES_PASSWORD=fight
       - POSTGRES_DB=fight
@@ -96,9 +96,34 @@ services:
       timeout: 5s
       retries: 5
 
+  dragonfly:
+    image: docker.dragonflydb.io/dragonflydb/dragonfly
+    hostname: dragonfly
+    container_name: backend-cockfighting-bun-cache
+    deploy:
+      resources:
+        limits:
+          cpus: '0.15'
+          memory: '0.4GB'
+    restart: unless-stopped
+    # ulimits:
+    #   memlock: -1
+    volumes:
+      - dragonfly_data:/data
+    ports:
+      - 6380:6379
+    networks:
+      - fight-pit
+    # healthcheck:
+    #   test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+    #   interval: 1s
+    #   timeout: 3s
+    #   retries: 30
+
 networks:
   fight-pit:
     driver: bridge
 
 volumes:
   postgres_data:
+  dragonfly_data:

@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { uuidv7 } from 'uuidv7'
 import postgres from 'postgres'
+import Redis from 'ioredis'
 
 const sql = postgres({
   host: process.env.DB_HOST,
@@ -17,14 +18,14 @@ const sql = postgres({
   },
 })
 
-const peopleNicknamesCache = new Map<string, number>()
+const redis = new Redis(process.env.REDIS_URL ?? 'redis://localhost:6379/1')
 
 new Elysia()
   .get('/health-check', () => ({ message: 'ok' }))
   .post(
     '/pessoas',
     async (context) => {
-      const personAlreadyExists = peopleNicknamesCache.has(context.body.apelido)
+      const personAlreadyExists = await redis.exists(context.body.apelido)
 
       if (personAlreadyExists) {
         context.set.status = 422
@@ -32,11 +33,22 @@ new Elysia()
       }
 
       const uuid = uuidv7()
+      const stacks = context.body.stack.join(',')
+      await redis.set(uuid, JSON.stringify({
+        id: uuid,
+        apelido: context.body.apelido,
+        nome: context.body.nome,
+        nascimento: context.body.nascimento,
+        stack: stacks
+      }))
+
+      await redis.expire(uuid, 9)
+
       const [result] = await sql`
         INSERT INTO people (id, nickname, name, birth_date, stack)
         VALUES (${uuid}, ${context.body.apelido}, ${context.body.nome}, ${
         context.body.nascimento
-      }, ${context.body.stack.join(',')})
+      }, ${stacks})
         ON CONFLICT DO NOTHING
         RETURNING id;
         `
@@ -48,7 +60,8 @@ new Elysia()
 
       const id = result.id
 
-      peopleNicknamesCache.set(context.body.apelido, 1)
+      await redis.set(context.body.apelido, 1)
+      await redis.expire(context.body.apelido, 12)
 
       context.set.headers['Location'] = `/pessoas/${result.id}`
       context.set.status = 201
@@ -87,23 +100,38 @@ new Elysia()
         }
       }
 
-      const [result] =
-        await sql`SELECT people.id, people.nickname, people.name, people.birth_date, people.stack FROM people WHERE people.id = ${context.params.id};`
+      const id = context.params.id
 
-      if (!result) {
+      const cachedPerson = await redis.get(id)
+
+      if (cachedPerson) {
+        return JSON.parse(cachedPerson)
+      }
+
+      const [personFound] =
+        await sql`SELECT people.id, people.nickname, people.name, people.birth_date, people.stack FROM people WHERE people.id = ${id};`
+
+      if (!personFound) {
         context.set.status = 404
         return {
           message: 'This person do not exist',
         }
       }
 
-      return {
-        id: result.id,
-        apelido: result.nickname,
-        nome: result.name,
-        nascimento: result.birth_date,
-        stack: result.stack.split(','),
+      const result = {
+        id: personFound.id,
+        apelido: personFound.nickname,
+        nome: personFound.name,
+        nascimento: personFound.birth_date,
+        stack: personFound.stack.split(','),
       }
+
+
+      await redis.set(id, JSON.stringify(result))
+
+      await redis.expire(id, 9)
+
+      return result
     },
     {
       params: t.Object({
