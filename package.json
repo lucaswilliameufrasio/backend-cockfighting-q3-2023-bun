@@ -1,0 +1,20 @@
+{
+  "name": "backend-cockfighting-q3-2023-bun",
+  "module": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "dev": "bun run --hot src/index.ts"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "elysia": "latest",
+    "postgres": "^3.3.5",
+    "uuidv7": "^0.6.2"
+  }
+}
