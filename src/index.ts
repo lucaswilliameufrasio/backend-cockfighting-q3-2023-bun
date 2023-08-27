@@ -29,7 +29,7 @@ new Elysia()
 
       if (personAlreadyExists) {
         context.set.status = 422
-        return { message: 'Internal Server Error' }
+        return { message: 'Person already exists' }
       }
 
       const uuid = uuidv7()
