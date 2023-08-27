@@ -172,4 +172,9 @@ new Elysia()
     set.status = 500
     return { message: 'Internal Server Error' }
   })
-  .listen(process.env.PORT ?? 9999)
+  .listen({
+    hostname: '0.0.0.0',
+    port: `${process.env.PORT ?? 9999}`
+  }, ({ hostname, port }) => {
+    console.log(`Running at http://${hostname}:${port}`)
+})
