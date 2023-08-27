@@ -8,7 +8,7 @@ const sql = postgres({
   database: process.env.DB_NAME,
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  idle_timeout: 10,
+  idle_timeout: 240,
   max: process.env.DB_MAX_CONNECTIONS
     ? Number(process.env.DB_MAX_CONNECTIONS)
     : 90,
@@ -28,7 +28,7 @@ new Elysia()
 
       if (personAlreadyExists) {
         context.set.status = 422
-        return { message: 'Person already exists' }
+        return { message: 'Internal Server Error' }
       }
 
       const uuid = uuidv7()
