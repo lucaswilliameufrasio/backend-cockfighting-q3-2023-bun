@@ -13,6 +13,7 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=fight
       - DB_MAX_CONNECTIONS=75
+      - REDIS_URL=redis://dragonfly:6379/1
     depends_on:
       - dragonfly
       - db
@@ -38,6 +39,7 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=fight
       - DB_MAX_CONNECTIONS=75
+      - REDIS_URL=redis://dragonfly:6379/1
     depends_on:
       - dragonfly
       - db
