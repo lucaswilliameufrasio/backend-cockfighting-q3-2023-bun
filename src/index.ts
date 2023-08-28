@@ -43,7 +43,7 @@ new Elysia()
       
       await redis.expire(uuid, 9)
       
-      const stacks = context.body.stack.join(',')
+      const stacks = context.body.stack?.join(',') ?? ''
       const [result] = await sql`
         INSERT INTO people (id, nickname, name, birth_date, stack)
         VALUES (${uuid}, ${context.body.apelido}, ${context.body.nome}, ${
@@ -83,9 +83,9 @@ new Elysia()
             default: '',
           },
         ),
-        stack: t.Array(t.String(), {
+        stack: t.Optional(t.Array(t.String(), {
           minItems: 1,
-        }),
+        })),
       }),
       onResponse: () => {},
     },
