@@ -41,7 +41,7 @@ new Elysia()
         stack: context.body.stack
       }))
       
-      await redis.expire(uuid, 9)
+      await redis.expire(uuid, 90)
       
       const stacks = context.body.stack?.join(',') ?? ''
       const [result] = await sql`
@@ -61,7 +61,7 @@ new Elysia()
       const id = result.id
 
       await redis.set(context.body.apelido, 1)
-      await redis.expire(context.body.apelido, 12)
+      await redis.expire(context.body.apelido, 90)
 
       context.set.headers['Location'] = `/pessoas/${result.id}`
       context.set.status = 201
@@ -129,7 +129,7 @@ new Elysia()
 
       await redis.set(id, JSON.stringify(result))
 
-      await redis.expire(id, 9)
+      await redis.expire(id, 90)
 
       return result
     },
